@@ -1,7 +1,9 @@
 import turtle
 import math
 from time import *
+import time
 import pygame
+import serial
 
 # pygame.mixer.init()
 # pygame.mixer.music.load("./Music/SoundTest.wav")
@@ -13,6 +15,14 @@ wn.title("Zombie head adventure")
 wn.setup(700, 700)
 wn.tracer(0)
 wn.bgpic("./image/giphy.gif")
+
+arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
+
+def write_read(x):
+    arduino.write(bytes(x, 'utf-8'))
+    time.sleep(0.05)
+    data = arduino.readline()
+    return data
 
 
 class Pen(turtle.Turtle):
@@ -43,6 +53,9 @@ class Player(turtle.Turtle):
 
         if (move_to_x, move_to_y) not in walls:
             self.goto(move_to_x, move_to_y)
+        else:
+            value = write_read('1')
+            print(value)
 
     def go_down(self):
         move_to_x = player.xcor()
@@ -50,6 +63,9 @@ class Player(turtle.Turtle):
 
         if (move_to_x, move_to_y) not in walls:
             self.goto(move_to_x, move_to_y)
+        else:
+            value = write_read('1')
+            print(value)
 
     def go_left(self):
         move_to_x = player.xcor() - 24
@@ -57,6 +73,9 @@ class Player(turtle.Turtle):
 
         if (move_to_x, move_to_y) not in walls:
             self.goto(move_to_x, move_to_y)
+        else:
+            value = write_read('1')
+            print(value)
 
     def go_right(self):
         move_to_x = player.xcor() + 24
@@ -64,6 +83,9 @@ class Player(turtle.Turtle):
 
         if (move_to_x, move_to_y) not in walls:
             self.goto(move_to_x, move_to_y)
+        else:
+            value = write_read('1')
+            print(value)
 
     def is_collision(self, other):
         a = self.xcor()-other.xcor()
