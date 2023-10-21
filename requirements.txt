@@ -1,0 +1,5 @@
+gTTS==2.4.0
+mazelib==0.9.14
+numpy==1.23.4
+pygame==2.5.2
+serial==0.0.97
