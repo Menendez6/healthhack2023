@@ -16,14 +16,13 @@ wn.setup(700, 700)
 wn.tracer(0)
 wn.bgpic("./image/giphy.gif")
 
-#arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
+arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
 
-"""def write_read(x):
-    #arduino.write(bytes(x, 'utf-8'))
-    #time.sleep(0.05)
-    #data = arduino.readline()
-    #return data
-    return x"""
+def write_read(x):
+    arduino.write(bytes(x, 'utf-8'))
+    time.sleep(0.05)
+    data = arduino.readline()
+    return data
 
 
 class Pen(turtle.Turtle):

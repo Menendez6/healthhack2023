@@ -4,7 +4,17 @@ import os
 import sys
 import random
 import pygame
+import serial
+import time
 
+#We need to set a signal when the game starts and when the game finishes
+arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
+
+def write_read(x):
+    arduino.write(bytes(x, 'utf-8'))
+    time.sleep(0.05)
+    data = arduino.readline()
+    return data
 
 # Class for the orange dude
 class Player(object):
@@ -34,14 +44,30 @@ class Player(object):
             if self.rect.colliderect(wall.rect):
                 if dx > 0: # Moving right; Hit the left side of the wall
                     self.rect.right = wall.rect.left
+                    value = write_read('2')
                 if dx < 0: # Moving left; Hit the right side of the wall
                     self.rect.left = wall.rect.right
+                    value = write_read('4')
                 if dy > 0: # Moving down; Hit the top side of the wall
                     self.rect.bottom = wall.rect.top
+                    value = write_read('3')
                 if dy < 0: # Moving up; Hit the bottom side of the wall
                     self.rect.top = wall.rect.bottom
+                    value = write_read('1')
 
-
+        if self.rect.colliderect(door_rect) and not player.hasKey:
+            if dx > 0: # Moving right; Hit the left side of the wall
+                self.rect.right = wall.rect.left
+                value = write_read('2')
+            if dx < 0: # Moving left; Hit the right side of the wall
+                self.rect.left = wall.rect.right
+                value = write_read('4')
+            if dy > 0: # Moving down; Hit the top side of the wall
+                self.rect.bottom = wall.rect.top
+                value = write_read('3')
+            if dy < 0: # Moving up; Hit the bottom side of the wall
+                self.rect.top = wall.rect.bottom
+                value = write_read('1')
 
 
 # Nice class to hold a wall rect
@@ -117,13 +143,13 @@ while running:
             running = False
         if e.type == pygame.KEYDOWN: 
             if e.key == pygame.K_LEFT:
-                player.move(-16, 0)
+                player.move(-32, 0)
             if e.key == pygame.K_RIGHT:
-                player.move(16, 0)
+                player.move(32, 0)
             if e.key == pygame.K_UP:
-                player.move(0, -16)
+                player.move(0, -32)
             if e.key == pygame.K_DOWN:
-                player.move(0, 16)
+                player.move(0, 32)
             
     
     if player.rect.colliderect(door_rect) and player.hasKey:

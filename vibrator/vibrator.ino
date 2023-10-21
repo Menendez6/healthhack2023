@@ -1,5 +1,5 @@
 int buzzerPin = 0;  
-const unsigned long duration = 1000; 
+const unsigned long duration = 500; 
 int key_received=0;
 
 void setup() {
