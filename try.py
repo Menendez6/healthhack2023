@@ -22,8 +22,19 @@ class Player(object):
             self.move_single_axis(dx, 0)
         if dy != 0:
             self.move_single_axis(0, dy)
+    
+    def move_step(self, button, x,y):
+            
+        key = pygame.key.get_pressed() #key is true if you are pressing smtg
 
-
+        if not key: #IF NO KEY IS PRESSED
+            player.counter = 0
+        
+        elif key[button] and player.counter == 0 : #if it is pressed and button was released before
+                player.move(x, y) #move the player
+                player.counter += 1
+        elif not key[button]: # if button released, put counter as 0
+                player.counter = 0
 
     def move_single_axis(self, dx, dy):
         
@@ -115,15 +126,39 @@ while running:
             running = False
 
     # Move the player if an arrow key is pressed
-    key = pygame.key.get_pressed()
-    if key[pygame.KEYUP]:
-        player.counter = 0
-        print ('I am zero')
-    if key[pygame.K_LEFT] and player.counter == 0:
-        player.move(-16, 0)
-        player.counter += 1
+    key = pygame.key.get_pressed() #key is true if you are pressing smtg
+    
+    if not key: #IF NO KEY IS PRESSED
+            player.counter = 0
+    elif key[pygame.K_DOWN] and player.counter == 0 : #if it is pressed and button was released before
+                player.move(0, -16) #move the player
+                player.counter += 1
+    elif not key[pygame.K_DOWN]: # if button released, put counter as 0
+                player.counter = 0
+    
+    if player.rect.colliderect(door_rect) and player.hasKey:
+        pygame.quit()
+        sys.exit()
+
+
+    if key[pygame.K_LEFT]:
+        player.move_step(pygame.K_LEFT,-16, 0)
+    if key[pygame.K_RIGHT]:
+        player.move_step(pygame.K_RIGHT,16, 0)
+    if key[pygame.K_UP]:
+        player.move_step(pygame.K_UP,0, 16)
+    if key[pygame.K_DOWN]:
+        player.move_step(pygame.K_DOWN,0, -16)
+      
+
+    '''elif key[pygame.K_LEFT] and player.counter == 0 :
+            player.move(-16, 0)
+            player.counter += 1
+    elif not key[pygame.K_LEFT]:
+            player.counter = 0
     if key[pygame.K_RIGHT]:
         player.move(16, 0)
+        player.move(0,0)
     if key[pygame.K_UP]:
         player.move(0, -16)
     if key[pygame.K_DOWN]:
@@ -131,11 +166,8 @@ while running:
 
     # Just added this to make it slightly fun ;)
     #When player reaches the end AND has a key > game quits
-    if player.rect.colliderect(door_rect) and player.hasKey:
-        pygame.quit()
-        sys.exit()
 
-    '''if player.rect.colliderect(monster_rect) and player.hasKey:
+    if player.rect.colliderect(monster_rect) and player.hasKey:
         print("ye")
         player.key = False
     elif player.rect.colliderect(monster_rect) and not player.hasKey:
