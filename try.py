@@ -211,7 +211,7 @@ while running:
         sys.exit()
 
     if player.rect.colliderect(key.rect):
-        end_rect = pygame.Rect(x, y, 0, 0) #makes key disappear
+        key.rect = pygame.Rect(x, y, 0, 0) #makes key disappear
         player.hasKey = True
 
     # Draw the scene
