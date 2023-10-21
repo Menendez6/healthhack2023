@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from enum import Enum
 import os
 import sys
 import random
@@ -30,6 +31,18 @@ def write_read(x):
     # data = arduino.readline()
     return "suuuu"
 
+
+class Monster_Proximity(Enum):
+    '''NONE = 0
+    UP = 1
+    RIGHT = 2
+    DOWN = 3
+    LEFT = 4'''
+    SUPER_CLOSE = 1
+    CLOSE = 2
+    FAR = 3
+
+
 # Class for the orange dude
 
 
@@ -40,6 +53,7 @@ class Player(object):
                                 OBJECT_SIZE, OBJECT_SIZE)
         self.hasKey = False
         self.counter = 0
+        self.monster_proximity = Monster_Proximity.FAR
         self.position = [(self.rect.left)//OBJECT_SIZE,
                          (self.rect.top)//OBJECT_SIZE]
 
@@ -95,6 +109,75 @@ class Player(object):
     def distance_y(self, obj):
         return (self.position[1] - obj.position[1])
 
+    # calculate the degree of closeness of the monster to the player
+    def monster_distance(self, monster):
+        dist_x = abs(self.distance_x(monster))
+        dist_y = abs(self.distance_y(monster))
+        dist = (dist_x**2 + dist_y**2)**(1/2)
+
+        # if dist_x == 1 and dist_y == 1:
+        if dist <= 1:
+            self.monster_proximity = Monster_Proximity.SUPER_CLOSE
+            print('super_close')
+        elif 1 < dist <= 2:
+            # elif dist_x == 2 and dist_y == 2:
+            self.monster_proximity = Monster_Proximity.CLOSE
+            print('close')
+        # elif dist_x == 3 and dist_y == 3:
+        elif 2 < dist <= 3:
+            print('far')
+            self.monster_proximity = Monster_Proximity.FAR
+
+    def info(self):  # gives information on obstacles around the current position
+        '''self.monster_check()
+        if self.monster_present == Monster_Presence.UP:
+            print("Il y a un monstre en haut!")
+        if self.monster_present == Monster_Presence.RIGHT:
+            print("Il y a un monstre à droite!")
+        if self.monster_present == Monster_Presence.DOWN:
+            print("Il y a un monstre en bas!")
+        if self.monster_present == Monster_Presence.LEFT:
+            print("Il y a un monstre à gauche!")'''
+
+    # def monster_check (self):
+        x = self.position[0]
+        y = self.position[1]
+
+        up = [x, y - 1]
+        down = [x, y + 1]
+        left = [x - 1, y]
+        right = [x + 1, y]
+
+        for wall in walls:
+            if wall.position == up:
+                print("Il y a un mur en haut")
+            elif wall.position == down:
+                print("Il y a un mur en bas")
+            elif wall.position == left:
+                print("Il y a un mur à gauche")
+            elif wall.position == right:
+                print("Il y a un mur à droite")
+
+        for monster in monsters:
+            if monster.position == up:
+                print("Il y a un monstre en haut!")
+                # self.monster_present = Monster_Presence.UP
+                # self.monster_present = 'up'
+            elif monster.position == down:
+                # self.monster_present = 'down'
+                # self.monster_present = Monster_Presence.DOWN
+                print("Il y a un monstre en bas!")
+            elif monster.position == left:
+                # self.monster_present = 'left'
+                # self.monster_present = Monster_Presence.LEFT
+                print("Il y a un monstre à gauche!")
+            elif monster.position == right:
+                # self.monster_present = 'right'
+                # self.monster_present = Monster_Presence.RIGHT
+                print("Il y a un monstre à droite!")
+            '''else: 
+                self.monster_present = Monster_Presence.NONE'''
+
     def hint(self):
         if self.hasKey:
             dist_x_objective = self.distance_x(door)
@@ -130,6 +213,7 @@ class Monster(object):
         self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE, OBJECT_SIZE)
         self.position = [(self.rect.left)//OBJECT_SIZE,
                          (self.rect.top)//OBJECT_SIZE]
+        monsters.append(self)
 
 
 class Door(object):
@@ -145,6 +229,7 @@ class Wall(object):
     def __init__(self, pos):
         walls.append(self)
         self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE, OBJECT_SIZE)
+        self.position = [(self.rect.left)//32, (self.rect.top)//32]
 
 
 # Initialise pygame
@@ -157,6 +242,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 clock = pygame.time.Clock()
 walls = []  # List to hold the walls
+monsters = []  # list to hold the monsters (letterM)
 player = Player()  # Create the player
 
 # Holds the level layout in a list of strings.
@@ -214,6 +300,9 @@ running = True
 while running:
 
     clock.tick(60)
+    for monster in monsters:
+        player.monster_distance(monster)
+        # print(player.monster_distance)
 
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
@@ -224,6 +313,9 @@ while running:
         if e.type == pygame.KEYDOWN:
             if e.key == pygame.K_SPACE:
                 player.hint()
+            if e.key == pygame.K_a:
+                print("A")
+                player.info()
             if e.key == pygame.K_LEFT:
                 player.move(-OBJECT_SIZE, 0)
             if e.key == pygame.K_RIGHT:
