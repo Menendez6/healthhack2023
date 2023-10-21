@@ -70,6 +70,31 @@ class Player(object):
                 self.rect.top = wall.rect.bottom
                 value = write_read('1')
 
+    def distance_x(self, obj) :
+        return (self.position[0] - obj.position[0])
+
+    def distance_y(self, obj) :
+        return (self.position[1] - obj.position[1])
+
+    def hint(self) :
+        if self.hasKey :
+            dist_x_objective = self.distance_x(door)
+            dist_y_objective = self.distance_y(door)
+            objective = "sortie" 
+        else :
+            dist_x_objective = self.distance_x(key)
+            dist_y_objective = self.distance_y(key)
+            objective = "clé"
+        if dist_x_objective < 0 :
+            dist_x_objective = str(abs(dist_x_objective)) + " cases à droite"
+        else :
+            dist_x_objective = str(abs(dist_x_objective)) + " cases à gauche"
+        if dist_y_objective < 0 :
+            dist_y_objective = str(abs(dist_y_objective)) + " cases en bas"
+        else : 
+            dist_y_objective = str(abs(dist_y_objective)) + " cases en haut"
+        print("la", objective, "est", dist_x_objective, "et",dist_y_objective)
+
 
 class Key(object): 
     def __init__(self, pos):
