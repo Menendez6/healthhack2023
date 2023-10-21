@@ -73,16 +73,16 @@ class Player(object):
 
         if self.rect.colliderect(door.rect) and not player.hasKey:
             if dx > 0: # Moving right; Hit the left side of the wall
-                self.rect.right = wall.rect.left
+                self.rect.right = door.rect.left
                 value = write_read('2')
             if dx < 0: # Moving left; Hit the right side of the wall
-                self.rect.left = wall.rect.right
+                self.rect.left = door.rect.right
                 value = write_read('4')
             if dy > 0: # Moving down; Hit the top side of the wall
-                self.rect.bottom = wall.rect.top
+                self.rect.bottom = door.rect.top
                 value = write_read('3')
             if dy < 0: # Moving up; Hit the bottom side of the wall
-                self.rect.top = wall.rect.bottom
+                self.rect.top = door.rect.bottom
                 value = write_read('1')
 
     def distance_x(self, obj) :
@@ -135,6 +135,13 @@ class Wall(object):
     def __init__(self, pos):
         walls.append(self)
         self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE, OBJECT_SIZE)
+
+#First we randomly select a story
+tracks = ['introduction-track-1_1.mp3','intro-track-2_pirates.mp3','intro-track-3-_starwars.mp3']
+select_track = random.randint(0,2)
+
+os.system("play " + tracks[select_track] +" tempo 1")
+
 
 # Initialise pygame
 os.environ["SDL_VIDEO_CENTERED"] = "1"
@@ -200,6 +207,8 @@ move_right = False
 move_up = False
 move_down = False
 running = True
+
+text_to_speech("Vous pouvez commencer")
 while running:
 
     clock.tick(60)
@@ -234,6 +243,7 @@ while running:
     if player.rect.colliderect(key.rect):
         key.rect = pygame.Rect(x, y, 0, 0) #makes key disappear
         player.hasKey = True
+        text_to_speech("Vous avez trouvé la clé, recherche de la porte")
 
     # Draw the scene
     screen.fill((0, 0, 0)) #color bg
@@ -250,3 +260,4 @@ while running:
     clock.tick(360)
 
 pygame.quit()
+
