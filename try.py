@@ -13,7 +13,7 @@ class Player(object):
         self.rect = pygame.Rect(32, 32, 32, 32)
         self.hasKey = False
         self.counter = 0
-        self.position = []
+        self.position = [(self.rect.left)//32,(self.rect.top)//32]
 
     def move(self, dx, dy):
         
@@ -28,6 +28,7 @@ class Player(object):
         # Move the rect
         self.rect.x += dx
         self.rect.y += dy
+        self.position = [(self.rect.left)//32,(self.rect.top)//32]
 
         # If you collide with a wall, move out based on velocity
         for wall in walls:
@@ -41,7 +42,48 @@ class Player(object):
                 if dy < 0: # Moving up; Hit the bottom side of the wall
                     self.rect.top = wall.rect.bottom
 
+    def distance_x(self, obj) :
+        return (self.position[0] - obj.position[0])
+    
+    def distance_y(self, obj) :
+        return (self.position[1] - obj.position[1])
+    
+    def hint(self) :
+        if self.hasKey :
+            dist_x_objective = self.distance_x(door)
+            dist_y_objective = self.distance_y(door)
+            objective = "sortie" 
+        else :
+            dist_x_objective = self.distance_x(key)
+            dist_y_objective = self.distance_y(key)
+            objective = "clé"
+        if dist_x_objective < 0 :
+            dist_x_objective = str(abs(dist_x_objective)) + " cases à droite"
+        else :
+            dist_x_objective = str(abs(dist_x_objective)) + " cases à gauche"
+        if dist_y_objective < 0 :
+            dist_y_objective = str(abs(dist_y_objective)) + " cases en bas"
+        else : 
+            dist_y_objective = str(abs(dist_y_objective)) + " cases en haut"
+        print("la", objective, "est", dist_x_objective, "et",dist_y_objective)
+       
 
+
+
+class Key(object): 
+    def __init__(self, pos):
+        self.rect = pygame.Rect(pos[0], pos[1],16,16)
+        self.position = [(self.rect.left)//32,(self.rect.top)//32]
+
+class Monster(object): 
+    def __init__(self, pos):
+        self.rect = pygame.Rect(pos[0], pos[1],32,32)
+        self.position = [(self.rect.left)//32,(self.rect.top)//32]
+
+class Door(object): 
+    def __init__(self, pos):
+        self.rect = pygame.Rect(pos[0], pos[1],32,32)
+        self.position = [(self.rect.left)//32,(self.rect.top)//32]
 
 
 # Nice class to hold a wall rect
@@ -91,12 +133,14 @@ for row in level:
             Wall((x, y))
         if col == "E":
             #end_rect = pygame.Rect(x, y, 16, 16)
-            end_rect = pygame.Rect(x, y, 16, 16)
+            #end_rect = pygame.Rect(x, y, 16, 16)
+            key = Key((x,y))
         if col == "M":
             #monster_rect = pygame.Rect(x,y,16,16)
-            monster_rect = pygame.Rect(x, y, 32, 32)
+            monster = Monster((x,y))
         if col == "D": 
-            door_rect = pygame.Rect(x,y,32,32)
+            # door_rect = pygame.Rect(x,y,32,32)
+            door = Door((x, y))
         x += 32 #16
     y += 32 #16
     x = 0
@@ -115,26 +159,29 @@ while running:
             pygame.quit()
             sys.exit()
             running = False
+
         if e.type == pygame.KEYDOWN: 
+            if e.key == pygame.K_SPACE:
+                player.hint()
             if e.key == pygame.K_LEFT:
-                player.move(-16, 0)
+                player.move(-32, 0)
             if e.key == pygame.K_RIGHT:
-                player.move(16, 0)
+                player.move(32, 0)
             if e.key == pygame.K_UP:
-                player.move(0, -16)
+                player.move(0, -32)
             if e.key == pygame.K_DOWN:
-                player.move(0, 16)
+                player.move(0, 32)
             
     
-    if player.rect.colliderect(door_rect) and player.hasKey:
+    if player.rect.colliderect(door.rect) and player.hasKey:
         pygame.quit()
         sys.exit()
     
-    if player.rect.colliderect(monster_rect):
+    if player.rect.colliderect(monster.rect):
         pygame.quit()
         sys.exit()
 
-    if player.rect.colliderect(end_rect):
+    if player.rect.colliderect(key.rect):
         end_rect = pygame.Rect(x, y, 0, 0) #makes key disappear
         player.hasKey = True
 
@@ -143,10 +190,10 @@ while running:
     for wall in walls:
         pygame.draw.rect(screen, (255, 255, 255), wall.rect)
  #color wall 
-    pygame.draw.rect(screen, (255, 200, 0), end_rect) #color end box
+    pygame.draw.rect(screen, (255, 200, 0), key.rect) #color end box
     pygame.draw.rect(screen, (255, 0, 0), player.rect)
-    pygame.draw.rect(screen, (100, 149, 237), monster_rect)
-    pygame.draw.rect(screen,(102,76,40),door_rect )
+    pygame.draw.rect(screen, (100, 149, 237), monster.rect)
+    pygame.draw.rect(screen,(102,76,40),door.rect )
     #pygame.image.load("/char.gif")
     # gfxdraw.filled_circle(screen, 255, 200, 5, (0,128,0))
     pygame.display.flip()
