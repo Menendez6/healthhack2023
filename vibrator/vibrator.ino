@@ -1,17 +1,19 @@
 int buzzerPin = 0;  
 const unsigned long duration = 1000; 
-uint_16 received_key=0;
+int key_received=0;
 
 void setup() {
-  pinMode(buzzerPin, OUTPUT);  
+  //pinMode(buzzerPin, OUTPUT);  
   Serial.begin(115200);
+  Serial.setTimeout(1);
  
 }
 
-void vibrate(uint_16 pin){
+void vibrate(int pin){
+  pinMode(pin, OUTPUT);
   unsigned long startTime = millis();  // Get the current time
 
-  
+  //Serial.print(x + 2);
   while (millis() - startTime < duration) {
     
     digitalWrite(pin, HIGH);
@@ -30,11 +32,15 @@ void vibrate(uint_16 pin){
 
 
 void loop() {
-  if (Serial.available() >= 2) {
-   received_key = Serial.read() + (Serial.read() << 8);
-   switch (key) {
+  while (!Serial.available());
+  key_received = Serial.readString().toInt();
+  //if (Serial.available() >= 2) {
+  // received_key = Serial.read() + (Serial.read() << 8);
+  
+  switch (key_received){
      case 1:
        buzzerPin=9;
+       Serial.print(key_received + 1);
        break;
      case 2:
        buzzerPin=10;
@@ -45,6 +51,6 @@ void loop() {
      case 4:
        buzzerPin=12;
        break;
+   }
    vibrate(buzzerPin);
-   
 }

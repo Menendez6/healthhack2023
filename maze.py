@@ -16,13 +16,14 @@ wn.setup(700, 700)
 wn.tracer(0)
 wn.bgpic("./image/giphy.gif")
 
-arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
+#arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
 
 def write_read(x):
-    arduino.write(bytes(x, 'utf-8'))
-    time.sleep(0.05)
-    data = arduino.readline()
-    return data
+    #arduino.write(bytes(x, 'utf-8'))
+    #time.sleep(0.05)
+    #data = arduino.readline()
+    #return data
+    return x
 
 
 class Pen(turtle.Turtle):
@@ -64,7 +65,7 @@ class Player(turtle.Turtle):
         if (move_to_x, move_to_y) not in walls:
             self.goto(move_to_x, move_to_y)
         else:
-            value = write_read('1')
+            value = write_read('2')
             print(value)
 
     def go_left(self):
@@ -74,7 +75,7 @@ class Player(turtle.Turtle):
         if (move_to_x, move_to_y) not in walls:
             self.goto(move_to_x, move_to_y)
         else:
-            value = write_read('1')
+            value = write_read('3')
             print(value)
 
     def go_right(self):
@@ -84,7 +85,7 @@ class Player(turtle.Turtle):
         if (move_to_x, move_to_y) not in walls:
             self.goto(move_to_x, move_to_y)
         else:
-            value = write_read('1')
+            value = write_read('4')
             print(value)
 
     def is_collision(self, other):
