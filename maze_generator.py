@@ -55,8 +55,8 @@ def generate_maze(n: int, m: int) -> List[List[str]]:
     for _ in range(KEY_COUNT):
         # key can't be in 0,0 0,1 1,0 1,1 if possible
         key_coords = [
-            (x,y)
-            for x,y in open_coords
+            (x, y)
+            for x, y in open_coords
             if x > 1 and y > 1
         ]
         if len(key_coords) == 0:
@@ -75,7 +75,7 @@ def generate_maze(n: int, m: int) -> List[List[str]]:
     ]
     opennes = 0.1
     # set n of them to open
-    closeto_open = max(1,int(opennes* len(closed_coords)))
+    closeto_open = max(1, int(opennes * len(closed_coords)))
     n_coords_to_open = random.randint(1, closeto_open)
     for _ in range(n_coords_to_open):
         x, y = random.choice(closed_coords)
