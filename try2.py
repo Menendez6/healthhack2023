@@ -1,35 +1,10 @@
 #! /usr/bin/env python
 
-from enum import Enum
 import os
 import sys
 import random
 import pygame
-import serial
-import time
-from tts import text_to_speech
-from maze_generator import generate_maze
-
-# Maze Dimensions
-N = 6
-M = 6
-ROWS = 2*N + 1
-COLUMNS = 2*M + 1
-
-
-SCREEN_WIDTH = 666
-SCREEN_HEIGHT = 500
-OBJECT_SIZE = SCREEN_HEIGHT // ROWS
-
-
-# We need to set a signal when the game starts and when the game finishes
-# arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
-
-def write_read(x):
-    # arduino.write(bytes(x, 'utf-8'))
-    time.sleep(0.05)
-    # data = arduino.readline()
-    return "suuuu"
+from enum import Enum
 
 
 class Monster_Proximity(Enum):
@@ -42,20 +17,18 @@ class Monster_Proximity(Enum):
     CLOSE = 2
     FAR = 3
 
-
 # Class for the orange dude
 
 
 class Player(object):
 
     def __init__(self):
-        self.rect = pygame.Rect(OBJECT_SIZE, OBJECT_SIZE,
-                                OBJECT_SIZE, OBJECT_SIZE)
+        self.rect = pygame.Rect(32, 32, 32, 32)
         self.hasKey = False
         self.counter = 0
+        # self.monster_present = Monster_Presence.NONE
         self.monster_proximity = Monster_Proximity.FAR
-        self.position = [(self.rect.left)//OBJECT_SIZE,
-                         (self.rect.top)//OBJECT_SIZE]
+        self.position = [(self.rect.left)//32, (self.rect.top)//32]
 
     def move(self, dx, dy):
 
@@ -70,38 +43,19 @@ class Player(object):
         # Move the rect
         self.rect.x += dx
         self.rect.y += dy
-        self.position = [(self.rect.left)//OBJECT_SIZE,
-                         (self.rect.top)//OBJECT_SIZE]
+        self.position = [(self.rect.left)//32, (self.rect.top)//32]
 
         # If you collide with a wall, move out based on velocity
         for wall in walls:
             if self.rect.colliderect(wall.rect):
                 if dx > 0:  # Moving right; Hit the left side of the wall
                     self.rect.right = wall.rect.left
-                    value = write_read('2')
                 if dx < 0:  # Moving left; Hit the right side of the wall
                     self.rect.left = wall.rect.right
-                    value = write_read('4')
                 if dy > 0:  # Moving down; Hit the top side of the wall
                     self.rect.bottom = wall.rect.top
-                    value = write_read('3')
                 if dy < 0:  # Moving up; Hit the bottom side of the wall
                     self.rect.top = wall.rect.bottom
-                    value = write_read('1')
-
-        if self.rect.colliderect(door.rect) and not player.hasKey:
-            if dx > 0:  # Moving right; Hit the left side of the wall
-                self.rect.right = door.rect.left
-                value = write_read('2')
-            if dx < 0:  # Moving left; Hit the right side of the wall
-                self.rect.left = door.rect.right
-                value = write_read('4')
-            if dy > 0:  # Moving down; Hit the top side of the wall
-                self.rect.bottom = door.rect.top
-                value = write_read('3')
-            if dy < 0:  # Moving up; Hit the bottom side of the wall
-                self.rect.top = door.rect.bottom
-                value = write_read('1')
 
     def distance_x(self, obj):
         return (self.position[0] - obj.position[0])
@@ -195,32 +149,26 @@ class Player(object):
             dist_y_objective = str(abs(dist_y_objective)) + " cases en bas"
         else:
             dist_y_objective = str(abs(dist_y_objective)) + " cases en haut"
-        message = "la " + objective + " est " + \
-            dist_x_objective + " et " + dist_y_objective
         print("la", objective, "est", dist_x_objective, "et", dist_y_objective)
-        text_to_speech(message)
 
 
 class Key(object):
     def __init__(self, pos):
-        self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE//2, OBJECT_SIZE//2)
-        self.position = [(self.rect.left)//OBJECT_SIZE,
-                         (self.rect.top)//OBJECT_SIZE]
+        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
+        self.position = [(self.rect.left)//32, (self.rect.top)//32]
 
 
 class Monster(object):
     def __init__(self, pos):
-        self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE, OBJECT_SIZE)
-        self.position = [(self.rect.left)//OBJECT_SIZE,
-                         (self.rect.top)//OBJECT_SIZE]
+        self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
+        self.position = [(self.rect.left)//32, (self.rect.top)//32]
         monsters.append(self)
 
 
 class Door(object):
     def __init__(self, pos):
-        self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE, OBJECT_SIZE)
-        self.position = [(self.rect.left)//OBJECT_SIZE,
-                         (self.rect.top)//OBJECT_SIZE]
+        self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
+        self.position = [(self.rect.left)//32, (self.rect.top)//32]
 
 
 # Nice class to hold a wall rect
@@ -228,15 +176,9 @@ class Wall(object):
 
     def __init__(self, pos):
         walls.append(self)
-        self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE, OBJECT_SIZE)
+        # self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
+        self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
         self.position = [(self.rect.left)//32, (self.rect.top)//32]
-
-
-#First we randomly select a story
-tracks = ['introduction-track-1_1.mp3','intro-track-2_pirates.mp3','intro-track-3-_starwars.mp3']
-select_track = random.randint(0,2)
-
-os.system("play " + tracks[select_track] +" tempo 1")
 
 
 # Initialise pygame
@@ -245,7 +187,7 @@ pygame.init()
 
 # Set up the display
 pygame.display.set_caption("Get the key to exit the maze !")
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((666, 500))
 
 clock = pygame.time.Clock()
 walls = []  # List to hold the walls
@@ -253,31 +195,23 @@ monsters = []  # list to hold the monsters (letterM)
 player = Player()  # Create the player
 
 # Holds the level layout in a list of strings.
-# for reference
-# level = [
-#     "WWWWWWWWWWWWWWWWWWWW",
-#     "W                  W",
-#     "W         WWWWWW   W",
-#     "W   WWWW       W   W",
-#     "W   W        WWWW  W",
-#     "W WWW  WWWW        W",
-#     "W   W     W W      W",
-#     "W   W     W   WW   D",
-#     "W   WWW WWW   M W  W",
-#     "W     W   W   W W  W",
-#     "WWW   W   WWWWW W  W",
-#     "W W      WW        W",
-#     "W W   WWWW   WWW   W",
-#     "W     W    E   W   W",
-#     "WWWWWWWWWWWWWWWWWWWW",
-# ]
-
-level = generate_maze(N, M)
-
-print(len(level))
-print(len(level[0]))
-for row in level:
-    print(row)
+level = [
+    "WWWWWWWWWWWWWWWWWWWW",
+    "W                  W",
+    "W         WWWWWW   W",
+    "W   WWWW       W   W",
+    "W   W        WWWW  W",
+    "W WWW  WWWW        W",
+    "W   W     W W      W",
+    "W   W     W   WW   D",
+    "W   WWW WWW   M W  W",
+    "W     W   W   W W  W",
+    "WWW   W   WWWWW W  W",
+    "W W      WW        W",
+    "W W   WWWW   WWW   W",
+    "W     W    E   W   W",
+    "WWWWWWWWWWWWWWWWWWWW",
+]
 
 # Parse the level string above. W = wall, E = exit key, M = monster
 x = y = 0
@@ -295,8 +229,8 @@ for row in level:
         if col == "D":
             # door_rect = pygame.Rect(x,y,32,32)
             door = Door((x, y))
-        x += OBJECT_SIZE  # 16
-    y += OBJECT_SIZE  # 16
+        x += 32  # 16
+    y += 32  # 16
     x = 0
 
 move_left = False
@@ -304,8 +238,6 @@ move_right = False
 move_up = False
 move_down = False
 running = True
-
-text_to_speech("Vous pouvez commencer")
 while running:
 
     clock.tick(60)
@@ -326,13 +258,13 @@ while running:
                 print("A")
                 player.info()
             if e.key == pygame.K_LEFT:
-                player.move(-OBJECT_SIZE, 0)
+                player.move(-32, 0)
             if e.key == pygame.K_RIGHT:
-                player.move(OBJECT_SIZE, 0)
+                player.move(32, 0)
             if e.key == pygame.K_UP:
-                player.move(0, -OBJECT_SIZE)
+                player.move(0, -32)
             if e.key == pygame.K_DOWN:
-                player.move(0, OBJECT_SIZE)
+                player.move(0, 32)
 
     if player.rect.colliderect(door.rect) and player.hasKey:
         pygame.quit()
@@ -345,12 +277,12 @@ while running:
     if player.rect.colliderect(key.rect):
         key.rect = pygame.Rect(x, y, 0, 0)  # makes key disappear
         player.hasKey = True
-        text_to_speech("Vous avez trouvé la clé, recherche de la porte")
 
     # Draw the scene
     screen.fill((0, 0, 0))  # color bg
     for wall in walls:
         pygame.draw.rect(screen, (255, 255, 255), wall.rect)
+
  # color wall
     pygame.draw.rect(screen, (255, 200, 0), key.rect)  # color end box
     pygame.draw.rect(screen, (255, 0, 0), player.rect)
