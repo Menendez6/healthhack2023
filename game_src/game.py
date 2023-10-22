@@ -7,11 +7,8 @@ import random
 import pygame
 import serial
 import time
-from tts import text_to_speech
-from maze_generator import generate_maze
-from pydub import AudioSegment
-from pydub.playback import play
-import threading
+from game_src.text_to_speech import text_to_speech
+from game_src.maze_generator import generate_maze
 
 # Maze Dimensions
 N = 6
@@ -33,6 +30,7 @@ def write_read(x):
     time.sleep(0.05)
     # data = arduino.readline()
     return "suuuu"
+
 
 def reproduce_file(sound_file):
     sound = pygame.mixer.Sound(sound_file)
@@ -133,7 +131,7 @@ class Player(object):
             sound.set_volume(1)
             sound.play()
             text_to_speech('The monster is next to you')
-        elif 1 < dist <= 2 and (dist_ant<=1 or dist_ant > 2):
+        elif 1 < dist <= 2 and (dist_ant <= 1 or dist_ant > 2):
             # elif dist_x == 2 and dist_y == 2:
             self.monster_proximity = Monster_Proximity.CLOSE
             print('close')
@@ -141,7 +139,7 @@ class Player(object):
             sound.set_volume(0.3)
             sound.play()
         # elif dist_x == 3 and dist_y == 3:
-        elif 2 < dist <= 3 and (dist_ant<=2 or dist_ant > 3):
+        elif 2 < dist <= 3 and (dist_ant <= 2 or dist_ant > 3):
             print('far')
             self.monster_proximity = Monster_Proximity.FAR
             sound = pygame.mixer.Sound('sounds/monster.mp3')
@@ -151,7 +149,7 @@ class Player(object):
 
     def info(self):  # gives information on obstacles around the current position
 
-    # def monster_check (self):
+        # def monster_check (self):
         x = self.position[0]
         y = self.position[1]
 
@@ -212,9 +210,9 @@ class Player(object):
         print("la", objective, "est", dist_x_objective, "et", dist_y_objective)
         text_to_speech(message)
         reproduce_file('sounds/speech.mp3')
-    
-    def kill_monster (self, monster): 
-        monster.rect = pygame.Rect(x,y,0,0)
+
+    def kill_monster(self, monster):
+        monster.rect = pygame.Rect(x, y, 0, 0)
         self.counter = 0
 
 
@@ -249,19 +247,20 @@ class Wall(object):
         self.position = [(self.rect.left)//32, (self.rect.top)//32]
 
 
-#First we randomly select a story
+# First we randomly select a story
 pygame.mixer.init()
-tracks = ['sounds/introduction-track-1_1.mp3','sounds/intro-track-2_pirates.mp3','sounds/intro-track-3-_starwars.mp3']
-select_track = random.randint(0,2)
+tracks = ['sounds/introduction-track-1_1.mp3',
+          'sounds/intro-track-2_pirates.mp3', 'sounds/intro-track-3-_starwars.mp3']
+select_track = random.randint(0, 2)
 
-#os.system("play " + tracks[select_track] +" tempo 1")
-#sound = pygame.mixer.Sound(tracks[select_track])
-#sound.play()
+# os.system("play " + tracks[select_track] +" tempo 1")
+# sound = pygame.mixer.Sound(tracks[select_track])
+# sound.play()
 
-#text_to_speech("Vous pouvez commencer")
-#We should put some instructions at the beginning
-#sound_files = [tracks[select_track],'sounds/speech.mp3']
-#for sound_file in sound_files:
+# text_to_speech("Vous pouvez commencer")
+# We should put some instructions at the beginning
+# sound_files = [tracks[select_track],'sounds/speech.mp3']
+# for sound_file in sound_files:
 reproduce_file(tracks[select_track])
 
 
@@ -337,7 +336,7 @@ while running:
 
     clock.tick(60)
     for monster in monsters:
-        dist = player.monster_distance(monster,dist)
+        dist = player.monster_distance(monster, dist)
         # print(player.monster_distance)
 
     for e in pygame.event.get():
@@ -348,7 +347,7 @@ while running:
             running = False
 
         if e.type == pygame.KEYDOWN:
-            if e.key == pygame.K_s: 
+            if e.key == pygame.K_s:
                 player.kill_monster(monster)
             if e.key == pygame.K_SPACE:
                 player.hint()
@@ -367,10 +366,10 @@ while running:
     if player.rect.colliderect(door.rect) and player.hasKey:
         pygame.quit()
         sys.exit()
-    
+
     if player.rect.colliderect(monster.rect):
         player.counter += 1
-        if (player.counter >= 100): 
+        if (player.counter >= 100):
             pygame.quit()
             sys.exit()
 
