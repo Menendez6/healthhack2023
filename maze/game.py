@@ -26,7 +26,7 @@ OBJECT_SIZE = SCREEN_HEIGHT // ROWS
 AUDIO_DIR = "media/audio/"
 SOUND_LIBRARY = {
     "animations": {
-        "monster": "monster.mp3",
+        "monster": "monster.mp3", "game_over": "game_over_track.mp3"
     },
     "introduction_tracks": {
         "base": "introduction-track-1_1.mp3",
@@ -45,19 +45,25 @@ SOUND_LIBRARY = {
 
 # ARDUINO COMMUNICATION ------------------------------------------
 # We need to set a signal when the game starts and when the game finishes
-arduino = serial.Serial(port='/dev/ttyACM0', baudrate=9600,timeout=0.05)
+try:
+    arduino = serial.Serial(port='/dev/ttyACM0', baudrate=9600,timeout=0.05)
+except:
+    print("Not connected_arduino")
 # ----------------------------------------------------------------
 
 # UTILS ------------------------------------------------------------
 
 
 def write_read(x):
-    arduino.write(bytes(x, 'utf-8'))
-    print(x)
-    time.sleep(0.05)
-    data = arduino.readline()
-    print(data)
-    return data
+    try:
+        arduino.write(bytes(x, 'utf-8'))
+        print(x)
+        time.sleep(0.05)
+        data = arduino.readline()
+        print(data)
+        return data
+    except:
+        print("No arduino")
 
 '''while True:
     write_read('1')
@@ -274,7 +280,7 @@ class Wall(object):
 pygame.mixer.init()
 selected_track = random.choice(
     list(SOUND_LIBRARY["introduction_tracks"].values()))
-reproduce_file(selected_track)
+#reproduce_file(selected_track)
 
 
 # Initialise pygame
@@ -357,10 +363,9 @@ while running:
             pygame.quit()
             print("LOL")
             sys.exit()
-            running = False
 
         if e.type == pygame.KEYDOWN:
-            if e.key == pygame.K_s:
+            if e.key == pygame.K_s and player.rect.colliderect(monster.rect):
                 player.kill_monster(monster)
             if e.key == pygame.K_SPACE:
                 player.hint()
@@ -381,8 +386,18 @@ while running:
         sys.exit()
 
     if player.rect.colliderect(monster.rect):
+        if player.counter == 0:
+            play_text_as_sound("Monstre, combat")
+            while pygame.mixer.get_busy() == True:
+                time.sleep(0.01)
+
         player.counter += 1
         if (player.counter >= 100):
+            sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["game_over"])
+            sound.set_volume(1)
+            sound.play()
+            while pygame.mixer.get_busy() == True:
+                time.sleep(0.1)
             pygame.quit()
             sys.exit()
 
