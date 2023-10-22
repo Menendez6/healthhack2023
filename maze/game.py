@@ -7,8 +7,8 @@ import random
 import pygame
 import serial
 import time
-from game_src.text_to_speech import text_to_speech
-from game_src.maze_generator import generate_maze
+from maze.text_to_speech import text_to_speech
+from maze.maze_generator import generate_maze
 
 # Maze Dimensions
 N = 6
@@ -249,9 +249,13 @@ class Wall(object):
 
 # First we randomly select a story
 pygame.mixer.init()
-tracks = ['sounds/introduction-track-1_1.mp3',
-          'sounds/intro-track-2_pirates.mp3', 'sounds/intro-track-3-_starwars.mp3']
-select_track = random.randint(0, 2)
+AUDIO_DIR = "media/audio/"
+tracks = ['introduction-track-1_1.mp3',
+          'intro-track-2_pirates.mp3', 'intro-track-3-_starwars.mp3']
+tracks = [
+    os.path.join(AUDIO_DIR, track) for track in tracks
+]
+select_track = random.randint(0, len(tracks)-1)
 
 # os.system("play " + tracks[select_track] +" tempo 1")
 # sound = pygame.mixer.Sound(tracks[select_track])
