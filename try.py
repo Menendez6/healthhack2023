@@ -65,6 +65,7 @@ class Player(object):
         self.monster_proximity = Monster_Proximity.FAR
         self.position = [(self.rect.left)//OBJECT_SIZE,
                          (self.rect.top)//OBJECT_SIZE]
+        self.counter = 0
 
     def move(self, dx, dy):
 
@@ -211,6 +212,10 @@ class Player(object):
         print("la", objective, "est", dist_x_objective, "et", dist_y_objective)
         text_to_speech(message)
         reproduce_file('sounds/speech.mp3')
+    
+    def kill_monster (self, monster): 
+        monster.rect = pygame.Rect(x,y,0,0)
+        self.counter = 0
 
 
 class Key(object):
@@ -343,6 +348,8 @@ while running:
             running = False
 
         if e.type == pygame.KEYDOWN:
+            if e.key == pygame.K_s: 
+                player.kill_monster(monster)
             if e.key == pygame.K_SPACE:
                 player.hint()
             if e.key == pygame.K_a:
@@ -360,10 +367,12 @@ while running:
     if player.rect.colliderect(door.rect) and player.hasKey:
         pygame.quit()
         sys.exit()
-
+    
     if player.rect.colliderect(monster.rect):
-        pygame.quit()
-        sys.exit()
+        player.counter += 1
+        if (player.counter >= 100): 
+            pygame.quit()
+            sys.exit()
 
     if player.rect.colliderect(key.rect):
         key.rect = pygame.Rect(x, y, 0, 0)  # makes key disappear
