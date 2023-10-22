@@ -12,8 +12,8 @@ from maze.maze_generator import generate_maze
 
 # GLOBAL VARIABLES FOR THE GAME -----------------------------------
 # Maze Dims
-N = 6
-M = 6
+N = 4
+M = 4
 ROWS = 2*N + 1
 COLUMNS = 2*M + 1
 
@@ -319,7 +319,7 @@ class Wall(object):
 pygame.mixer.init()
 selected_track = random.choice(
     list(SOUND_LIBRARY["introduction_tracks"].values()))
-#reproduce_file(selected_track)
+reproduce_file(selected_track)
 
 
 # Initialise pygame

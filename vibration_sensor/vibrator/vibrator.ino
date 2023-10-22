@@ -49,7 +49,7 @@ void loop() {
        Serial.print(key_received);
        break;
      case 3: //down
-       buzzerPin=11;
+       buzzerPin=7;
        Serial.print(key_received);
        break;
      case 4: //left
