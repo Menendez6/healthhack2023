@@ -1,11 +1,10 @@
 from gtts import gTTS
 
-filename = "speech.mp3"
 
-
-def text_to_speech(text):
+def text_to_speech(text, path: str):
+    assert path.endswith(".mp3")
     tts = gTTS(text=text, lang='fr')
-    filename = "sounds/speech.mp3"
+    filename = path
     tts.save(filename)
 
 

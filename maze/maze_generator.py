@@ -40,7 +40,7 @@ def generate_maze(n: int, m: int) -> List[List[str]]:
         (x, y)
         for x in range(len(strmaze))
         for y in range(len(strmaze[0]))
-        if strmaze[x][y] != CHAR_IDS["wall"]
+        if (strmaze[x][y] == CHAR_IDS["open"])
     ]
     # get all the closed coords not in the borders
     closed_coords = [

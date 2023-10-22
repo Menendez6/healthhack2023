@@ -10,20 +10,46 @@ import time
 from maze.text_to_speech import text_to_speech
 from maze.maze_generator import generate_maze
 
-# Maze Dimensions
+# GLOBAL VARIABLES FOR THE GAME -----------------------------------
+# Maze Dims
 N = 6
 M = 6
 ROWS = 2*N + 1
 COLUMNS = 2*M + 1
 
-
+# Pygame Dims
 SCREEN_WIDTH = 666
 SCREEN_HEIGHT = 500
 OBJECT_SIZE = SCREEN_HEIGHT // ROWS
 
+# Media
+AUDIO_DIR = "media/audio/"
+SOUND_LIBRARY = {
+    "animations": {
+        "monster": "monster.mp3",
+    },
+    "introduction_tracks": {
+        "base": "introduction-track-1_1.mp3",
+        "pirates": "intro-track-2_pirates.mp3",
+        "starwars": "intro-track-3-_starwars.mp3",
+    },
+    "temp": {
+        "text_to_speech": "speech.mp3",
+    }
+}
+SOUND_LIBRARY = {
+    k: {k2: os.path.join(AUDIO_DIR, v2) for k2, v2 in v.items()}
+    for k, v in SOUND_LIBRARY.items()
+}
+# ----------------------------------------------------------------
 
+# ARDUINO COMMUNICATION ------------------------------------------
 # We need to set a signal when the game starts and when the game finishes
 # arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
+# ----------------------------------------------------------------
+
+# UTILS ------------------------------------------------------------
+
 
 def write_read(x):
     # arduino.write(bytes(x, 'utf-8'))
@@ -35,24 +61,23 @@ def write_read(x):
 def reproduce_file(sound_file):
     sound = pygame.mixer.Sound(sound_file)
     sound.play()
-    '''while pygame.mixer.get_busy():
-        pygame.time.delay(100)'''
+
+
+def play_text_as_sound(text: str):
+    text_to_speech(text, SOUND_LIBRARY["temp"]["text_to_speech"])
+    reproduce_file(SOUND_LIBRARY["temp"]["text_to_speech"])
+# ----------------------------------------------------------------
+
+# GAME CLASSES ----------------------------------------------------
 
 
 class Monster_Proximity(Enum):
-    '''NONE = 0
-    UP = 1
-    RIGHT = 2
-    DOWN = 3
-    LEFT = 4'''
     SUPER_CLOSE = 1
     CLOSE = 2
     FAR = 3
 
 
 # Class for the orange dude
-
-
 class Player(object):
 
     def __init__(self):
@@ -66,7 +91,6 @@ class Player(object):
         self.counter = 0
 
     def move(self, dx, dy):
-
         # Move each axis separately. Note that this checks for collisions both times.
         if dx != 0:
             self.move_single_axis(dx, 0)
@@ -127,22 +151,21 @@ class Player(object):
         if dist <= 1 and dist_ant > 1:
             self.monster_proximity = Monster_Proximity.SUPER_CLOSE
             print('super_close')
-            sound = pygame.mixer.Sound('sounds/monster.mp3')
+            sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["monster"])
             sound.set_volume(1)
             sound.play()
-            text_to_speech('The monster is next to you')
         elif 1 < dist <= 2 and (dist_ant <= 1 or dist_ant > 2):
             # elif dist_x == 2 and dist_y == 2:
             self.monster_proximity = Monster_Proximity.CLOSE
             print('close')
-            sound = pygame.mixer.Sound('sounds/monster.mp3')
+            sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["monster"])
             sound.set_volume(0.3)
             sound.play()
         # elif dist_x == 3 and dist_y == 3:
         elif 2 < dist <= 3 and (dist_ant <= 2 or dist_ant > 3):
             print('far')
             self.monster_proximity = Monster_Proximity.FAR
-            sound = pygame.mixer.Sound('sounds/monster.mp3')
+            sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["monster"])
             sound.set_volume(0.1)
             sound.play()
         return dist
@@ -171,22 +194,12 @@ class Player(object):
         for monster in monsters:
             if monster.position == up:
                 print("Il y a un monstre en haut!")
-                # self.monster_present = Monster_Presence.UP
-                # self.monster_present = 'up'
             elif monster.position == down:
-                # self.monster_present = 'down'
-                # self.monster_present = Monster_Presence.DOWN
                 print("Il y a un monstre en bas!")
             elif monster.position == left:
-                # self.monster_present = 'left'
-                # self.monster_present = Monster_Presence.LEFT
                 print("Il y a un monstre à gauche!")
             elif monster.position == right:
-                # self.monster_present = 'right'
-                # self.monster_present = Monster_Presence.RIGHT
                 print("Il y a un monstre à droite!")
-            '''else: 
-                self.monster_present = Monster_Presence.NONE'''
 
     def hint(self):
         if self.hasKey:
@@ -208,8 +221,7 @@ class Player(object):
         message = "la " + objective + " est " + \
             dist_x_objective + " et " + dist_y_objective
         print("la", objective, "est", dist_x_objective, "et", dist_y_objective)
-        text_to_speech(message)
-        reproduce_file('sounds/speech.mp3')
+        play_text_as_sound(message)
 
     def kill_monster(self, monster):
         monster.rect = pygame.Rect(x, y, 0, 0)
@@ -245,27 +257,15 @@ class Wall(object):
         walls.append(self)
         self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE, OBJECT_SIZE)
         self.position = [(self.rect.left)//32, (self.rect.top)//32]
+# ----------------------------------------------------------------
 
 
+# GAME LOGIC ------------------------------------------------------
 # First we randomly select a story
 pygame.mixer.init()
-AUDIO_DIR = "media/audio/"
-tracks = ['introduction-track-1_1.mp3',
-          'intro-track-2_pirates.mp3', 'intro-track-3-_starwars.mp3']
-tracks = [
-    os.path.join(AUDIO_DIR, track) for track in tracks
-]
-select_track = random.randint(0, len(tracks)-1)
-
-# os.system("play " + tracks[select_track] +" tempo 1")
-# sound = pygame.mixer.Sound(tracks[select_track])
-# sound.play()
-
-# text_to_speech("Vous pouvez commencer")
-# We should put some instructions at the beginning
-# sound_files = [tracks[select_track],'sounds/speech.mp3']
-# for sound_file in sound_files:
-reproduce_file(tracks[select_track])
+selected_track = random.choice(
+    list(SOUND_LIBRARY["introduction_tracks"].values()))
+reproduce_file(selected_track)
 
 
 # Initialise pygame
@@ -380,8 +380,7 @@ while running:
     if player.rect.colliderect(key.rect):
         key.rect = pygame.Rect(x, y, 0, 0)  # makes key disappear
         player.hasKey = True
-        text_to_speech("Vous avez trouvé la clé, recherche de la porte")
-        reproduce_file("sounds/speech.mp3")
+        play_text_as_sound("Vous avez trouvé la clé, recherche de la porte")
 
     # Draw the scene
     screen.fill((0, 0, 0))  # color bg
@@ -397,4 +396,5 @@ while running:
     pygame.display.flip()
     clock.tick(360)
 
+# ----------------------------------------------------------------
 pygame.quit()
