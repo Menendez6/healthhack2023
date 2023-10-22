@@ -35,6 +35,7 @@ SOUND_LIBRARY = {
     },
     "other_tracks": {
         "instructions": "instructions.mp3",
+        "winning": "winning_track.mp3"
     },
     "temp": {
         "text_to_speech": "speech.mp3",
@@ -422,6 +423,9 @@ while running:
                 play_instructions()
 
     if player.rect.colliderect(door.rect) and player.hasKey:
+        reproduce_file(SOUND_LIBRARY["other_tracks"]["winning"])
+        while pygame.mixer.get_busy() == True:
+            time.sleep(0.01)
         pygame.quit()
         sys.exit()
 
