@@ -275,6 +275,7 @@ class Player(object):
         monsters = []
         monster.position = None
         self.counter = 0
+        play_text_as_sound("Monstre tué")
 
 
 class Key(object):
@@ -438,7 +439,7 @@ while running:
                 time.sleep(0.01)
 
         player.counter += 1
-        if (player.counter >= 100):
+        if (player.counter >= 400):
             sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["game_over"])
             sound.set_volume(1)
             sound.play()
