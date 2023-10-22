@@ -10,10 +10,19 @@ import time
 from maze.text_to_speech import text_to_speech
 from maze.maze_generator import generate_maze
 
+# add quargs for the maze dimensions
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--n", help="number of rows", type=int, default=4)
+parser.add_argument("--m", help="number of columns", type=int, default=4)
+args = parser.parse_args()
+
 # GLOBAL VARIABLES FOR THE GAME -----------------------------------
 # Maze Dims
-N = 4
-M = 4
+
+N = args.n
+M = args.m
+
 ROWS = 2*N + 1
 COLUMNS = 2*M + 1
 
@@ -275,6 +284,7 @@ class Player(object):
         monsters = []
         monster.position = None
         self.counter = 0
+        play_text_as_sound("Monstre tué")
 
 
 class Key(object):
@@ -438,7 +448,7 @@ while running:
                 time.sleep(0.01)
 
         player.counter += 1
-        if (player.counter >= 100):
+        if (player.counter >= 400):
             sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["game_over"])
             sound.set_volume(1)
             sound.play()
