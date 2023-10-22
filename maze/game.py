@@ -203,7 +203,6 @@ class Player(object):
         
         commandmsg = ""
         for wall in walls:
-            print(wall.position)
             msg = ""
             if wall.position == up:
                 print("Il y a un mur en haut")
