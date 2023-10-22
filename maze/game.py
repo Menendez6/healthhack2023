@@ -103,13 +103,14 @@ class Player(object):
         self.monster_proximity = Monster_Proximity.FAR
         self.position = [(self.rect.left)//OBJECT_SIZE,
                          (self.rect.top)//OBJECT_SIZE]
+        self.allow_move= True
         self.counter = 0
 
     def move(self, dx, dy):
         # Move each axis separately. Note that this checks for collisions both times.
-        if dx != 0:
+        if dx != 0 and self.allow_move:
             self.move_single_axis(dx, 0)
-        if dy != 0:
+        if dy != 0 and self.allow_move:
             self.move_single_axis(0, dy)
 
     def move_single_axis(self, dx, dy):
@@ -239,7 +240,8 @@ class Player(object):
         play_text_as_sound(message)
 
     def kill_monster(self, monster):
-        monster.rect = pygame.Rect(x, y, 0, 0)
+        player.allow_move = True
+        monster.rect = pygame.Rect(x, y, 0, 0) #A bit hardcoded to delete the monster, this has to be changed
         self.counter = 0
 
 
@@ -385,7 +387,9 @@ while running:
         pygame.quit()
         sys.exit()
 
+    #We should add here a block movement variable blocks the character until you kill him or die
     if player.rect.colliderect(monster.rect):
+        player.allow_move = False
         if player.counter == 0:
             play_text_as_sound("Monstre, combat")
             while pygame.mixer.get_busy() == True:
