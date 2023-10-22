@@ -213,7 +213,6 @@ class Player(object):
         reproduce_file('sounds/speech.mp3')
 
 
-
 class Key(object):
     def __init__(self, pos):
         self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE//2, OBJECT_SIZE//2)
