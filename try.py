@@ -9,6 +9,9 @@ import serial
 import time
 from tts import text_to_speech
 from maze_generator import generate_maze
+from pydub import AudioSegment
+from pydub.playback import play
+import threading
 
 # Maze Dimensions
 N = 6
@@ -30,6 +33,12 @@ def write_read(x):
     time.sleep(0.05)
     # data = arduino.readline()
     return "suuuu"
+
+def reproduce_file(sound_file):
+    sound = pygame.mixer.Sound(sound_file)
+    sound.play()
+    '''while pygame.mixer.get_busy():
+        pygame.time.delay(100)'''
 
 
 class Monster_Proximity(Enum):
@@ -110,34 +119,36 @@ class Player(object):
         return (self.position[1] - obj.position[1])
 
     # calculate the degree of closeness of the monster to the player
-    def monster_distance(self, monster):
+    def monster_distance(self, monster, dist_ant):
         dist_x = abs(self.distance_x(monster))
         dist_y = abs(self.distance_y(monster))
         dist = (dist_x**2 + dist_y**2)**(1/2)
 
         # if dist_x == 1 and dist_y == 1:
-        if dist <= 1:
+        if dist <= 1 and dist_ant > 1:
             self.monster_proximity = Monster_Proximity.SUPER_CLOSE
             print('super_close')
-        elif 1 < dist <= 2:
+            sound = pygame.mixer.Sound('sounds/monster.mp3')
+            sound.set_volume(1)
+            sound.play()
+            text_to_speech('The monster is next to you')
+        elif 1 < dist <= 2 and (dist_ant<=1 or dist_ant > 2):
             # elif dist_x == 2 and dist_y == 2:
             self.monster_proximity = Monster_Proximity.CLOSE
             print('close')
+            sound = pygame.mixer.Sound('sounds/monster.mp3')
+            sound.set_volume(0.3)
+            sound.play()
         # elif dist_x == 3 and dist_y == 3:
-        elif 2 < dist <= 3:
+        elif 2 < dist <= 3 and (dist_ant<=2 or dist_ant > 3):
             print('far')
             self.monster_proximity = Monster_Proximity.FAR
+            sound = pygame.mixer.Sound('sounds/monster.mp3')
+            sound.set_volume(0.1)
+            sound.play()
+        return dist
 
     def info(self):  # gives information on obstacles around the current position
-        '''self.monster_check()
-        if self.monster_present == Monster_Presence.UP:
-            print("Il y a un monstre en haut!")
-        if self.monster_present == Monster_Presence.RIGHT:
-            print("Il y a un monstre à droite!")
-        if self.monster_present == Monster_Presence.DOWN:
-            print("Il y a un monstre en bas!")
-        if self.monster_present == Monster_Presence.LEFT:
-            print("Il y a un monstre à gauche!")'''
 
     # def monster_check (self):
         x = self.position[0]
@@ -199,6 +210,8 @@ class Player(object):
             dist_x_objective + " et " + dist_y_objective
         print("la", objective, "est", dist_x_objective, "et", dist_y_objective)
         text_to_speech(message)
+        reproduce_file('sounds/speech.mp3')
+
 
 
 class Key(object):
@@ -233,10 +246,19 @@ class Wall(object):
 
 
 #First we randomly select a story
-tracks = ['introduction-track-1_1.mp3','intro-track-2_pirates.mp3','intro-track-3-_starwars.mp3']
+pygame.mixer.init()
+tracks = ['sounds/introduction-track-1_1.mp3','sounds/intro-track-2_pirates.mp3','sounds/intro-track-3-_starwars.mp3']
 select_track = random.randint(0,2)
 
-os.system("play " + tracks[select_track] +" tempo 1")
+#os.system("play " + tracks[select_track] +" tempo 1")
+#sound = pygame.mixer.Sound(tracks[select_track])
+#sound.play()
+
+#text_to_speech("Vous pouvez commencer")
+#We should put some instructions at the beginning
+#sound_files = [tracks[select_track],'sounds/speech.mp3']
+#for sound_file in sound_files:
+reproduce_file(tracks[select_track])
 
 
 # Initialise pygame
@@ -305,17 +327,19 @@ move_up = False
 move_down = False
 running = True
 
-text_to_speech("Vous pouvez commencer")
+dist = 100
+
 while running:
 
     clock.tick(60)
     for monster in monsters:
-        player.monster_distance(monster)
+        dist = player.monster_distance(monster,dist)
         # print(player.monster_distance)
 
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
             pygame.quit()
+            print("LOL")
             sys.exit()
             running = False
 
@@ -346,6 +370,7 @@ while running:
         key.rect = pygame.Rect(x, y, 0, 0)  # makes key disappear
         player.hasKey = True
         text_to_speech("Vous avez trouvé la clé, recherche de la porte")
+        reproduce_file("sounds/speech.mp3")
 
     # Draw the scene
     screen.fill((0, 0, 0))  # color bg
