@@ -75,7 +75,7 @@ def write_read(x):
 
 def reproduce_file(sound_file):
     sound = pygame.mixer.Sound(sound_file)
-    sound.play()
+    sound.play()    
 
 
 def play_text_as_sound(text: str):
@@ -123,9 +123,12 @@ class Player(object):
         # If you collide with a wall, move out based on velocity
         for wall in walls:
             if self.rect.colliderect(wall.rect):
+                self.rect.x -= dx
+                self.rect.y -= dy
                 if dx > 0:  # Moving right; Hit the left side of the wall
                     self.rect.right = wall.rect.left
                     value = write_read('2')
+                    self.rect
                 if dx < 0:  # Moving left; Hit the right side of the wall
                     self.rect.left = wall.rect.right
                     value = write_read('4')
@@ -137,6 +140,8 @@ class Player(object):
                     value = write_read('1')
 
         if self.rect.colliderect(door.rect) and not player.hasKey:
+            self.rect.x -= dx
+            self.rect.y -= dy
             if dx > 0:  # Moving right; Hit the left side of the wall
                 self.rect.right = door.rect.left
                 value = write_read('2')
@@ -149,6 +154,11 @@ class Player(object):
             if dy < 0:  # Moving up; Hit the bottom side of the wall
                 self.rect.top = door.rect.bottom
                 value = write_read('1')
+        
+        self.position = [(self.rect.left)//OBJECT_SIZE, (self.rect.top)//OBJECT_SIZE]
+        
+        print(f"Player position {self.rect.x, self.rect.y}")
+        print(f"Player position {player.position}")
 
     def distance_x(self, obj):
         return (self.position[0] - obj.position[0])
@@ -161,26 +171,20 @@ class Player(object):
         dist_x = abs(self.distance_x(monster))
         dist_y = abs(self.distance_y(monster))
         dist = (dist_x**2 + dist_y**2)**(1/2)
-
-        # if dist_x == 1 and dist_y == 1:
+        sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["monster"])
         if dist <= 1 and dist_ant > 1:
             self.monster_proximity = Monster_Proximity.SUPER_CLOSE
             print('super_close')
-            sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["monster"])
             sound.set_volume(1)
             sound.play()
         elif 1 < dist <= 2 and (dist_ant <= 1 or dist_ant > 2):
-            # elif dist_x == 2 and dist_y == 2:
             self.monster_proximity = Monster_Proximity.CLOSE
             print('close')
-            sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["monster"])
             sound.set_volume(0.3)
             sound.play()
-        # elif dist_x == 3 and dist_y == 3:
         elif 2 < dist <= 3 and (dist_ant <= 2 or dist_ant > 3):
             print('far')
             self.monster_proximity = Monster_Proximity.FAR
-            sound = pygame.mixer.Sound(SOUND_LIBRARY["animations"]["monster"])
             sound.set_volume(0.1)
             sound.play()
         return dist
@@ -195,26 +199,42 @@ class Player(object):
         down = [x, y + 1]
         left = [x - 1, y]
         right = [x + 1, y]
-
+        
+        commandmsg = ""
         for wall in walls:
+            print(wall.position)
+            msg = ""
             if wall.position == up:
                 print("Il y a un mur en haut")
+                msg += "Mur en haut"
             elif wall.position == down:
                 print("Il y a un mur en bas")
+                msg += "Mur en bas"
             elif wall.position == left:
                 print("Il y a un mur à gauche")
+                msg += "Mur à gauche"
             elif wall.position == right:
                 print("Il y a un mur à droite")
+                msg += "Mur à droite"
+            commandmsg += msg + " "
 
         for monster in monsters:
             if monster.position == up:
                 print("Il y a un monstre en haut!")
+                msg += "Monstre en haut"
             elif monster.position == down:
                 print("Il y a un monstre en bas!")
+                msg += "Monstre en bas"
             elif monster.position == left:
                 print("Il y a un monstre à gauche!")
+                msg += "Monstre à gauche"
             elif monster.position == right:
                 print("Il y a un monstre à droite!")
+                msg += "Monstre à droite"
+            commandmsg += msg + " "
+        if commandmsg.replace(" ", "") == "":
+            commandmsg = "Rien autour de vous"
+        play_text_as_sound(commandmsg)
 
     def hint(self):
         if self.hasKey:
@@ -269,14 +289,19 @@ class Door(object):
 class Wall(object):
 
     def __init__(self, pos):
-        walls.append(self)
         self.rect = pygame.Rect(pos[0], pos[1], OBJECT_SIZE, OBJECT_SIZE)
-        self.position = [(self.rect.left)//32, (self.rect.top)//32]
+        self.position = [(self.rect.left)//OBJECT_SIZE, (self.rect.top)//OBJECT_SIZE]
+        walls.append(self)
 # ----------------------------------------------------------------
 
 
 # GAME LOGIC ------------------------------------------------------
 # First we randomly select a story
+
+# def select_narrative():
+
+#  def start_game():
+
 pygame.mixer.init()
 selected_track = random.choice(
     list(SOUND_LIBRARY["introduction_tracks"].values()))
