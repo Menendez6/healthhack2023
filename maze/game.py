@@ -169,6 +169,8 @@ class Player(object):
 
     # calculate the degree of closeness of the monster to the player
     def monster_distance(self, monster, dist_ant):
+        if monster.position == None:
+            return
         dist_x = abs(self.distance_x(monster))
         dist_y = abs(self.distance_y(monster))
         dist = (dist_x**2 + dist_y**2)**(1/2)
@@ -261,6 +263,9 @@ class Player(object):
     def kill_monster(self, monster):
         player.allow_move = True
         monster.rect = pygame.Rect(x, y, 0, 0) #A bit hardcoded to delete the monster, this has to be changed
+        #hackillo ...
+        monsters = []
+        monster.position = None
         self.counter = 0
 
 
