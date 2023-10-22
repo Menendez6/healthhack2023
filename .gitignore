@@ -87,6 +87,7 @@ celerybeat-schedule
 venv/
 ENV/
 arduino/
+laberinto
 
 # Spyder project settings
 .spyderproject

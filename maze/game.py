@@ -45,18 +45,27 @@ SOUND_LIBRARY = {
 
 # ARDUINO COMMUNICATION ------------------------------------------
 # We need to set a signal when the game starts and when the game finishes
-# arduino = serial.Serial(port='/dev/ttyACM0', baudrate=115200, timeout=.1)
+arduino = serial.Serial(port='/dev/ttyACM0', baudrate=9600,timeout=0.05)
 # ----------------------------------------------------------------
 
 # UTILS ------------------------------------------------------------
 
 
 def write_read(x):
-    # arduino.write(bytes(x, 'utf-8'))
+    arduino.write(bytes(x, 'utf-8'))
+    print(x)
     time.sleep(0.05)
-    # data = arduino.readline()
-    return "suuuu"
+    data = arduino.readline()
+    print(data)
+    return data
 
+'''while True:
+    write_read('1')
+    time.sleep(1)
+    write_read('2')
+    time.sleep(1)
+    write_read('4')
+    time.sleep(1)'''
 
 def reproduce_file(sound_file):
     sound = pygame.mixer.Sound(sound_file)
