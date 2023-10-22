@@ -9,8 +9,8 @@ Escape the maze game with arduino emitting vibrations and sounds when the player
 ### Installing
 Create a venv with python >= 3.8 for example with venv
 `python3 -m venv maze_venv` && `source ~/maze_venv/bin/activate`
-Install the dependencies
-`pip install -r "requirements.txt"`
+Clone the repo and install the project
+`git clone https://github.com/Menendez6/healthhack2023.git` && `cd healthhack2023` && `pip install -e .`
 
-### Running the code
-`python3 try.py`
+### Running the game
+`python3 maze/game.py`
