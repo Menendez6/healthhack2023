@@ -33,6 +33,9 @@ SOUND_LIBRARY = {
         "pirates": "intro-track-2_pirates.mp3",
         "starwars": "intro-track-3-_starwars.mp3",
     },
+    "other_tracks": {
+        "instructions": "instructions.mp3",
+    },
     "temp": {
         "text_to_speech": "speech.mp3",
     }
@@ -82,6 +85,10 @@ def play_text_as_sound(text: str):
     text_to_speech(text, SOUND_LIBRARY["temp"]["text_to_speech"])
     reproduce_file(SOUND_LIBRARY["temp"]["text_to_speech"])
 # ----------------------------------------------------------------
+
+# GAME UTILS ------------------------------------------------------
+def play_instructions():
+    reproduce_file(SOUND_LIBRARY["other_tracks"]["instructions"])
 
 # GAME CLASSES ----------------------------------------------------
 
@@ -411,6 +418,8 @@ while running:
                 player.move(0, -OBJECT_SIZE)
             if e.key == pygame.K_DOWN:
                 player.move(0, OBJECT_SIZE)
+            if e.key == pygame.K_r:
+                play_instructions()
 
     if player.rect.colliderect(door.rect) and player.hasKey:
         pygame.quit()
